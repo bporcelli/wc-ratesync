@@ -22,7 +22,6 @@ class WC_RS_Install {
 	 */
 	public static function init() {
 		add_filter( 'plugin_action_links_' . plugin_basename( RS_FILE ), array( __CLASS__, 'add_settings_link' ) );
-		add_filter( 'cron_schedules', array( __CLASS__, 'add_monthly_cron_schedule' ) );
 	}
 
 	/**
@@ -71,31 +70,12 @@ class WC_RS_Install {
 	}
 
 	/**
-	 * Add a 'monthly' cron schedule.
-	 *
-	 * @since 0.0.1
-	 *
-	 * @param  array $schedules Existing cron schedules.
-	 * @return array 
-	 */
-	public static function add_monthly_cron_schedule( $schedules ) {
-		if ( ! array_key_exists( 'monthly', $schedules ) ) {
-			$schedules['monthly'] = array(
-				'interval' => DAY_IN_SECONDS * 30.5,
-				'display'  => __( 'Once a month', 'wc-ratesync' ),
-			);
-		}
-		return $schedules;
-	}
-
-	/**
-	 * Schedule a monthly rate sync starting on the 5th of this month.
+	 * Schedule a daily rate sync starting 12:00AM today.
 	 *
 	 * @since 0.0.1
 	 */
 	protected static function schedule_sync() {
-		$start_time = mktime( 0, 0, 0, date( 'n' ), 5, date( 'Y' ) );
-		wp_schedule_event( $start_time, 'monthly', 'wc_rs_sync' );
+		wp_schedule_event( mktime( 0, 0, 0 ), 'daily', 'wc_rs_sync' );
 	}
 
 	/**
