@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Responsible for downloading and importing the latest rates from TaxRates.com.
  *
- * @author 	Brett Porcelli
+ * @author 	WC RateSync
  * @package WC_RateSync
  * @since 	0.0.1
  */

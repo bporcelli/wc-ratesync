@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Methods for rendering settings fields and saving settings.
  *
- * @author 	Brett Porcelli
+ * @author 	WC RateSync
  * @package WC_RateSync
  * @since 	0.0.1
  */
