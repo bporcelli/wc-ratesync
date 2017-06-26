@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Methods for rendering settings fields and saving settings.
  *
- * @author 	Brett Porcelli
+ * @author 	WC RateSync
  * @package WC_RateSync
  * @since 	0.0.1
  */
@@ -91,7 +91,7 @@ class WC_RS_Settings {
 			'title'    => __( 'Last sync', 'wc-ratesync' ),
 			'id'       => 'ratesync_last_sync',
 			'type'     => 'rs_sync_status',
-			'desc_tip' => __( 'The last time your tax rates were synced. Rates will be synced once per month and when your tax states change.', 'wc-ratesync' ),
+			'desc_tip' => __( 'The time and status of the last rate sync. Rates will be synced once daily and when you save your tax settings.', 'wc-ratesync' ),
 		);
 
 		$settings[] = array(
@@ -161,6 +161,17 @@ class WC_RS_Settings {
 	}
 
 	/**
+	 * Get sync status formatted for display.
+	 *
+	 * @since 0.0.1
+	 *
+	 * @return string
+	 */
+	protected function get_sync_status() {
+		return ucfirst( str_replace( '_', ' ', get_option( 'ratesync_sync_status' ) ) );
+	}
+
+	/**
 	 * Output sync status field.
 	 *
 	 * @since 0.0.1
@@ -176,7 +187,7 @@ class WC_RS_Settings {
 		if ( empty( $last_sync ) ) {
 			$message = __( 'Not synced yet.', 'wc-ratesync' );
 		} else {
-			$message = date( 'F d, Y H:i:s T', $last_sync );
+			$message = date( 'F d, Y H:i:s T', $last_sync ) . ' ('. $this->get_sync_status() . ')';
 		}
 
 		?><tr valign="top">
@@ -300,32 +311,22 @@ class WC_RS_Settings {
 	 *
 	 * @since 0.0.1
 	 */
-	protected function maybe_sync_rates() {
+	protected function sync_rates() {
 		global $wpdb;
 
-		$old_states  = get_option( 'ratesync_last_sync_states', array() );
-		$new_states  = WC_Admin_Settings::get_option( 'ratesync_tax_states', array() );
-        $sync_status = get_option( 'ratesync_sync_status' );
+		$tax_states = WC_Admin_Settings::get_option( 'ratesync_tax_states', array() );
 
-		sort( $old_states );
-		sort( $new_states );
+		// Delete rates for removed states
+		$wpdb->query( $wpdb->prepare( "
+			DELETE FROM {$wpdb->prefix}woocommerce_tax_rates
+			WHERE tax_rate_state NOT IN (%s);
+		", implode( ',', $tax_states ) ) );
 
-		if ( $new_states != $old_states || 'stopped' == $sync_status ) {
-			// Delete rates for removed states
-			$removed = array_diff( $old_states, $new_states );
+		// Start sync
+		$sync = new WC_RS_Sync();
+		$sync->start();
 
-			foreach ( $removed as $state ) {
-				$wpdb->delete( $wpdb->prefix . 'woocommerce_tax_rates', array(
-					'tax_rate_state' => $state,
-				) );
-			}
-
-			// Start sync and notify user
-			$sync = new WC_RS_Sync();
-			$sync->start();
-
-			WC_Admin_Settings::add_message( __( 'Tax rate sync started.', 'wc-ratesync' ) );
-		}
+		WC_Admin_Settings::add_message( __( 'Tax rate sync started.', 'wc-ratesync' ) );
 	}
 
 	/**
@@ -372,14 +373,14 @@ class WC_RS_Settings {
 	 *
 	 *   1) Sanitizes and saves the tax states option
 	 *   2) Activates the entered license key if necessary
-	 *   3) Triggers a rate sync if necessary
+	 *   3) Triggers a rate sync
 	 *
 	 * @since 0.0.1
 	 */
 	public function save_settings() {
 		self::save_tax_states();
 		self::maybe_activate_license();
-		self::maybe_sync_rates();
+		self::sync_rates();
 	}
 
 }
