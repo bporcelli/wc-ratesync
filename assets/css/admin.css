@@ -1,0 +1,14 @@
+.wc_rs_license_key, .wp-core-ui .button.wc_rs_deactivate {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.wp-core-ui .button.wc_rs_deactivate {
+	margin-left: 5px;
+}
+
+.rs-notice-dismiss {
+	float: right;
+	line-height: 36px;
+	text-decoration: none;
+}
