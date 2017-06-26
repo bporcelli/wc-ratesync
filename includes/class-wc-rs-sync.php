@@ -82,24 +82,22 @@ class WC_RS_Sync {
 	 */
 	public function start() {
 		if ( $this->in_progress() ) {
-			$this->cancel();
+			$this->cancel( false );
 		}
 
-		$states  = WC_Admin_Settings::get_option( 'ratesync_tax_states', array() );
+		// Check: license entered?
 		$license = trim( get_option( 'ratesync_license_key' ) );
 
-		// Check: license entered?
 		if ( empty( $license ) ) {
-			$this->add_error( __( 'Tax rate sync failed: A valid license key is required.', 'wc-ratesync' ) );
-			wp_die();
+			$this->add_error( __( 'A valid license key is required.', 'wc-ratesync' ), false );
+			return;
 		}
 
 		// Start sync
-		$this->add_message( __( 'Tax rate sync in progress.', 'wc-ratesync' ) );
-		
+		$states = WC_Admin_Settings::get_option( 'ratesync_tax_states', array() );
+
 		update_option( 'ratesync_sync_status', 'in_progress' );
 		update_option( 'ratesync_last_sync', time() );
-		update_option( 'ratesync_last_sync_states', $states );
 		update_option( 'ratesync_sync_queue', $states );
 		
 		$this->trigger_import();
@@ -116,39 +114,50 @@ class WC_RS_Sync {
 	public function import() {
 		global $wpdb;
 
-		// TODO: WHY ISN'T SYNC PROGRESSING?
 		$queue = get_option( 'ratesync_sync_queue', array() );
 
 		// Done processing?
 		if ( empty( $queue ) ) {
-			$this->add_message( __( 'Tax rates synced successfully.', 'wc-ratesync' ) );
-			
-			update_option( 'ratesync_sync_status', 'complete' );
-			wp_die();
+			$this->complete();
 		}
 
+		// Get local rate table path
 		$state      = array_pop( $queue );
-		$license    = get_option( 'ratesync_license_key' );
 		$upload_dir = wp_upload_dir();
-
-		// Download rate table for state
 		$table_path = $upload_dir['basedir'] . '/ratesync_tables/' . $state . '.csv';
+
+		// Download rate table if changed
+		$temp_path  = tempnam( sys_get_temp_dir(), 'RS' );
+		$table_hash = file_exists( $table_path ) ? md5_file( $table_path ) : '';
 
 		$response = wp_remote_get( self::API_URL . '/table/' . $state, array(
 			'timeout'  => 20,
 			'stream'   => true,
-			'filename' => $table_path,
-			'headers'  => array( 'X-RS-License' => $license ),
+			'filename' => $temp_path,
+			'headers'  => array( 
+				'X-RS-License' => get_option( 'ratesync_license_key' ),
+				'X-RS-Hash'    => $table_hash,
+			),
 		) );
+
+		// Check response for errors
+		if ( is_wp_error( $response ) ) {
+			$this->add_error( $response->get_error_message() );
+		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 
-		if ( is_wp_error( $response ) || 200 != $status_code ) {
-			$this->add_error( __( "Tax rate sync failed: couldn't retrieve table for state $state (response code: $status_code). Please check your license key and try again.", 'wc-ratesync' ) );
-			wp_die();
+		if ( 403 == $status_code ) {
+			$this->add_error( __( "License key inactive, disabled, or expired.", 'wc-ratesync' ) );
+		} else if ( 200 != $status_code && 304 != $status_code ) {
+			$this->add_error( __( "Couldn't retrieve table for state $state (response code: $status_code).", 'wc-ratesync' ) );
 		}
 
-		// Import table, replacing existing rates
+		// Import rate table, replacing existing rates
+		if ( 200 == $status_code ) {
+			rename( $temp_path, $table_path );
+		}
+
 		$wpdb->delete( $wpdb->prefix . 'woocommerce_tax_rates', array(
 			'tax_rate_state' => $state,
 		) );
@@ -165,10 +174,26 @@ class WC_RS_Sync {
 	 * Cancel sync.
 	 *
 	 * @since 0.0.1
+	 *
+	 * @param bool $and_die Die after cancelled? (default: true)
 	 */
-	protected function cancel() {
+	protected function cancel( $and_die = true ) {
 		update_option( 'ratesync_sync_queue', array() );
-		update_option( 'ratesync_sync_status', 'stopped' );
+		update_option( 'ratesync_sync_status', 'aborted' );
+		
+		if ( $and_die ) {
+			wp_die();
+		}
+	}
+
+	/**
+	 * Complete sync.
+	 *
+	 * @since 0.0.1
+	 */
+	protected function complete() {
+		update_option( 'ratesync_sync_status', 'complete' );
+		wp_die();
 	}
 
 	/**
@@ -188,11 +213,12 @@ class WC_RS_Sync {
 	 * @since 0.0.1
 	 *
 	 * @param string $message
+	 * @param bool $and_die Die after canceled? (default: true)
 	 */
-	protected function add_error( $message ) {
-		WC_RS_Notices::add_custom( 'ratesync_status', 'error', $message );
+	protected function add_error( $message, $and_die = true ) {
+		WC_RS_Notices::add_custom( 'ratesync_status', 'error', sprintf( __( 'Tax rate sync failed: %s', 'wc-ratesync' ), $message ) );
 
-		$this->cancel();
+		$this->cancel( $and_die );
 	}
 
 	/**
