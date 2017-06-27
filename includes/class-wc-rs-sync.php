@@ -89,8 +89,7 @@ class WC_RS_Sync {
 		$license = trim( get_option( 'ratesync_license_key' ) );
 
 		if ( empty( $license ) ) {
-			$this->add_error( __( 'A valid license key is required.', 'wc-ratesync' ), false );
-			return;
+			$this->add_error( __( 'A valid license key is required.', 'wc-ratesync' ) );
 		}
 
 		// Start sync
@@ -213,12 +212,11 @@ class WC_RS_Sync {
 	 * @since 0.0.1
 	 *
 	 * @param string $message
-	 * @param bool $and_die Die after canceled? (default: true)
 	 */
-	protected function add_error( $message, $and_die = true ) {
+	protected function add_error( $message ) {
 		WC_RS_Notices::add_custom( 'ratesync_status', 'error', sprintf( __( 'Tax rate sync failed: %s', 'wc-ratesync' ), $message ) );
 
-		$this->cancel( $and_die );
+		$this->cancel();
 	}
 
 	/**

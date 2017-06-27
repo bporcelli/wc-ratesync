@@ -70,12 +70,13 @@ class WC_RS_Install {
 	}
 
 	/**
-	 * Schedule a daily rate sync starting 12:00AM today.
+	 * Schedule a daily rate sync starting 12:00AM tomorrow.
 	 *
 	 * @since 0.0.1
 	 */
 	protected static function schedule_sync() {
-		wp_schedule_event( mktime( 0, 0, 0 ), 'daily', 'wc_rs_sync' );
+		$start_time = mktime( 0, 0, 0, date( 'n' ), date( 'j' ) + 1 );
+		wp_schedule_event( $start_time, 'daily', 'wc_rs_sync' );
 	}
 
 	/**
