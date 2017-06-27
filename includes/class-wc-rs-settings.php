@@ -315,6 +315,7 @@ class WC_RS_Settings {
 		global $wpdb;
 
 		$tax_states = WC_Admin_Settings::get_option( 'ratesync_tax_states', array() );
+		$license    = WC_Admin_Settings::get_option( 'ratesync_license_key' );
 
 		// Delete rates for removed states
 		$wpdb->query( $wpdb->prepare( "
@@ -322,11 +323,13 @@ class WC_RS_Settings {
 			WHERE tax_rate_state NOT IN (%s);
 		", implode( ',', $tax_states ) ) );
 
-		// Start sync
-		$sync = new WC_RS_Sync();
-		$sync->start();
+		// If license entered, start sync
+		if ( ! empty( $license ) ) {
+			$sync = new WC_RS_Sync();
+			$sync->start();
 
-		WC_Admin_Settings::add_message( __( 'Tax rate sync started.', 'wc-ratesync' ) );
+			WC_Admin_Settings::add_message( __( 'Tax rate sync started.', 'wc-ratesync' ) );
+		}
 	}
 
 	/**
