@@ -188,10 +188,24 @@ class WC_RS_Sync {
 	/**
 	 * Complete sync.
 	 *
+	 * Update sync status and delete orphaned tax rate locations.
+	 *
 	 * @since 0.0.1
 	 */
 	protected function complete() {
+		global $wpdb;
+
 		update_option( 'ratesync_sync_status', 'complete' );
+
+		$wpdb->query( "
+			DELETE l
+			FROM {$wpdb->prefix}woocommerce_tax_rate_locations l
+			WHERE l.location_id > 0
+			AND NOT EXISTS (
+				SELECT * FROM {$wpdb->prefix}woocommerce_tax_rates WHERE tax_rate_id = l.tax_rate_id
+			);
+		" );
+
 		wp_die();
 	}
 
