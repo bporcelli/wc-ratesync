@@ -166,7 +166,7 @@ class WC_RS_Settings {
 			)
 		) );
 
-		include RateSync()->plugin_path() . '/views/admin/html-tax-states-table.php';
+		include RateSync()->plugin_path() . '/includes/views/html-tax-states-table.php';
 	}
 
 	/**
