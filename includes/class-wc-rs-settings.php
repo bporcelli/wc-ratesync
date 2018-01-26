@@ -134,9 +134,9 @@ class WC_RS_Settings {
 
 		foreach ( $states as $abbrev => $name ) {
 			$states[ $abbrev ] = array(
-				'abbrev'               => $abbrev,
-				'name'                 => $name,
-				'shipping_tax_enabled' => 'yes',
+				'abbrev'           => $abbrev,
+				'name'             => $name,
+				'shipping_taxable' => WC_RS_States::is_shipping_taxable( $abbrev ),
 			);
 		}
 		return $states;

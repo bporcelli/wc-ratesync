@@ -108,6 +108,7 @@ final class WC_RateSync {
 		}
 		require_once 'includes/wc-rs-functions.php';
 		require_once 'includes/class-wc-rs-notices.php';
+		require_once 'includes/class-wc-rs-states.php';
 		require_once 'includes/class-wc-rs-install.php';
 		require_once 'includes/class-wc-rs-sync.php';
 		require_once 'includes/class-wc-rs-settings.php';

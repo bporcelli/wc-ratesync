@@ -80,9 +80,9 @@ class WC_RS_Install {
 
 		foreach ( $old_tax_states as $state_abbrev ) {
 			$new_tax_states[] = array(
-				'abbrev'               => $state_abbrev,
-				'name'                 => $states[ $state_abbrev ],
-				'shipping_tax_enabled' => 'yes',
+				'abbrev'           => $state_abbrev,
+				'name'             => $states[ $state_abbrev ],
+				'shipping_taxable' => WC_RS_States::is_shipping_taxable( $state_abbrev ),
 			);
 		}
 
