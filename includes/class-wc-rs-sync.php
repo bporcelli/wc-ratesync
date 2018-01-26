@@ -3,6 +3,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+if ( ! class_exists( 'WC_RS_Sync_Exception' ) ) {
+	require __DIR__ . '/class-wc-rs-sync-exception.php';
+}
 
 /**
  * Sync.
@@ -85,21 +88,63 @@ class WC_RS_Sync {
 			$this->cancel( false );
 		}
 
-		// Check: license entered?
 		$license = trim( get_option( 'ratesync_license_key' ) );
 
 		if ( empty( $license ) ) {
 			$this->add_error( __( 'A valid license key is required.', 'wc-ratesync' ) );
 		}
 
-		// Start sync
-		$states = wc_rs_get_tax_states( true );
-
 		update_option( 'ratesync_sync_status', 'in_progress' );
 		update_option( 'ratesync_last_sync', time() );
-		update_option( 'ratesync_sync_queue', $states );
+		update_option( 'ratesync_sync_queue', wc_rs_get_tax_states() );
 		
 		$this->trigger_import();
+	}
+
+	/**
+	 * Download the latest tax rate table for a state and return its path.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @throws WC_RS_Sync_Exception If the download fails.
+	 * @param  string $state State abbrevation.
+	 * @return boolean
+	 */
+	private function download_table( $state ) {
+		$upload_dir = wp_upload_dir();
+
+		$table_path = $upload_dir[ 'basedir' ] . '/ratesync_tables/' . $state . '.csv';
+		$table_hash = file_exists( $table_path ) ? md5_file( $table_path ) : '';
+
+		// Download table to temporary path and move to $table_path on success
+		$response = wp_remote_get( self::API_URL . '/table/' . $state, array(
+			'timeout' => 20,
+			'stream'  => true,
+			'headers' => array(
+				'X-RS-License' => get_option( 'ratesync_license_key' ),
+				'X-RS-Hash'    => $table_hash,
+			),
+		) );
+
+		if ( is_wp_error( $response ) ) {
+			throw new WC_RS_Sync_Exception( $response->get_error_message() );
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 != $status_code && 304 != $status_code ) {
+			$message = sprintf(
+				/** translators: state abbreviation, HTTP response code */
+				__( "Couldn't retrieve table for state %s (response code: %d).", 'wc-ratesync' ),
+				$state,
+				$status_code
+			);
+			throw new WC_RS_Sync_Exception( $message );
+		}
+		if ( 200 === $status_code ) {
+			rename( $response[ 'filename' ], $table_path );
+		}
+		return $table_path;
 	}
 
 	/**
@@ -115,53 +160,34 @@ class WC_RS_Sync {
 
 		$queue = get_option( 'ratesync_sync_queue', array() );
 
-		// Done processing?
-		if ( empty( $queue ) ) {
+		if ( empty( $queue ) ) {  // Done processing
 			$this->complete();
 		}
 
-		// Get local rate table path
-		$state      = array_pop( $queue );
-		$upload_dir = wp_upload_dir();
-		$table_path = $upload_dir['basedir'] . '/ratesync_tables/' . $state . '.csv';
+		$wc_tax_rates = "{$wpdb->prefix}woocommerce_tax_rates";
+		$state        = array_pop( $queue );
 
-		// Download rate table if changed
-		$temp_path  = tempnam( sys_get_temp_dir(), 'RS' );
-		$table_hash = file_exists( $table_path ) ? md5_file( $table_path ) : '';
+		try {
+			$table_path = $this->download_table( $state[ 'abbrev' ] );
 
-		$response = wp_remote_get( self::API_URL . '/table/' . $state, array(
-			'timeout'  => 20,
-			'stream'   => true,
-			'filename' => $temp_path,
-			'headers'  => array( 
-				'X-RS-License' => get_option( 'ratesync_license_key' ),
-				'X-RS-Hash'    => $table_hash,
-			),
-		) );
+			$wpdb->delete( $wc_tax_rates, array(
+				'tax_rate_state' => $state[ 'abbrev' ],
+			) );
 
-		// Check response for errors
-		if ( is_wp_error( $response ) ) {
-			$this->add_error( $response->get_error_message() );
+			$this->importer->import( $table_path );
+
+			/* By default, the 'shipping' flag is set for all imported rates. If
+			 * the user has disabled shipping tax for the current state, we need
+			 * to unset it. */
+			if ( 'no' === $state[ 'shipping_taxable' ] ) {
+				$set   = array( 'tax_rate_shipping' => 0 );
+				$where = array( 'tax_rate_state' => $state[ 'abbrev' ] );
+
+				$wpdb->update( $wc_tax_rates, $set, $where );
+			}
+		} catch ( WC_RS_Sync_Exception $e ) {
+			$this->add_error( $e->getMessage() );
 		}
-
-		$status_code = wp_remote_retrieve_response_code( $response );
-
-		if ( 403 == $status_code ) {
-			$this->add_error( __( "License key inactive, disabled, or expired.", 'wc-ratesync' ) );
-		} else if ( 200 != $status_code && 304 != $status_code ) {
-			$this->add_error( __( "Couldn't retrieve table for state $state (response code: $status_code).", 'wc-ratesync' ) );
-		}
-
-		// Import rate table, replacing existing rates
-		if ( 200 == $status_code ) {
-			rename( $temp_path, $table_path );
-		}
-
-		$wpdb->delete( $wpdb->prefix . 'woocommerce_tax_rates', array(
-			'tax_rate_state' => $state,
-		) );
-
-		$this->importer->import( $table_path );
 
 		// Continue processing
 		update_option( 'ratesync_sync_queue', $queue );
