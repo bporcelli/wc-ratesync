@@ -54,7 +54,7 @@
                     if ( _.size( states ) ) {
                         // Populate $tbody with the current states
                         $.each( states, function( abbrev, rowData ) {
-                            if ( 'yes' === rowData.shipping_tax_enabled ) {
+                            if ( 'yes' === rowData.shipping_taxable ) {
                                 rowData.shipping_tax_icon = '<span class="woocommerce-input-toggle woocommerce-input-toggle--enabled">' + data.strings.yes + '</span>';
                             } else {
                                 rowData.shipping_tax_icon = '<span class="woocommerce-input-toggle woocommerce-input-toggle--disabled">' + data.strings.no + '</span>';
@@ -95,7 +95,7 @@
                         changes      = {};
 
                     event.preventDefault();
-                    states[ state_abbrev ].shipping_tax_enabled = enabled;
+                    states[ state_abbrev ].shipping_taxable = enabled;
                     model.set( 'states', states );
                     view.render();
                 },

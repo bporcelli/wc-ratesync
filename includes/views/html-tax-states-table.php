@@ -44,7 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 </script>
 
 <script type="text/html" id="tmpl-wc-rs-tax-state-row">
-	<tr data-abbrev="{{ data.abbrev }}" data-enabled="{{ data.shipping_tax_enabled }}">
+	<tr data-abbrev="{{ data.abbrev }}" data-enabled="{{ data.shipping_taxable }}">
 		<td width="1%" class="wc-rs-tax-state-actions">
 			<a href="#" class="wc-rs-tax-state-delete">
 				<span class="screen-reader-text"><?php esc_html_e( 'Delete', 'wc-ratesync' ); ?></span>
@@ -59,8 +59,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<td class="wc-shipping-zone-method-enabled wc-rs-shipping-tax-enabled">
 			<input 
 				type="hidden"
-				name="ratesync_tax_states[{{ data.abbrev }}][shipping_tax_enabled]"
-				value="{{ data.shipping_tax_enabled }}">
+				name="ratesync_tax_states[{{ data.abbrev }}][shipping_taxable]"
+				value="{{ data.shipping_taxable }}">
 			<a href="#">{{{ data.shipping_tax_icon }}}</a>
 		</td>
 	</tr>
