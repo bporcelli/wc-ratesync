@@ -55,9 +55,9 @@ class WC_RS_Settings {
 	 * @since 0.0.1
 	 */
 	public function enqueue_scripts_and_styles() {
-		wp_enqueue_style( 'wc-rs-admin', RateSync()->plugin_url() . '/assets/css/admin.css' );
+		wc_rs_enqueue_style( 'wc-rs-admin', 'admin' );
 
-		wp_register_script( 'wc-rs-tax-states', RateSync()->plugin_url() . '/assets/js/wc-rs-tax-states.js', array( 'jquery', 'wp-util', 'underscore', 'backbone', 'wc-backbone-modal' ), RS_VERSION );
+		wc_rs_register_script( 'wc-rs-tax-states', 'wc-rs-tax-states', array( 'jquery', 'wp-util', 'underscore', 'backbone', 'wc-backbone-modal' ), RS_VERSION );
 	}
 
 	/**

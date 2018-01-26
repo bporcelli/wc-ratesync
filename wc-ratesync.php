@@ -10,6 +10,8 @@
  * Tested up to:         4.9.1
  * WC requires at least: 2.3.0
  * WC tested up to:      3.3.0
+ * Text Domain:          wc-ratesync
+ * Domain Path:          /languages
  *
  * @package WC_RateSync
  */
@@ -43,6 +45,11 @@ final class WC_RateSync {
 	 * @var Current plugin version
 	 */
 	public $version = '1.0.3';
+
+	/**
+	 * @var Is the plugin in debug mode?
+	 */
+	private $debug = false;
 
 	/**
 	 * @var RateSync instance
@@ -95,6 +102,7 @@ final class WC_RateSync {
 		define( 'RS_SL_ITEM_ID', 2378 );
 		define( 'RS_FILE', __FILE__ );
 		define( 'RS_VERSION', $this->version );
+		define( 'RS_DEBUG', $this->debug );
 	}
 
 	/**
@@ -151,7 +159,13 @@ final class WC_RateSync {
 	 * @since 0.0.1
 	 */
 	public static function woocommerce_notice() {
-		printf( '<div class="notice notice-error"><p>%s</p></div>', __( '<strong>WC RateSync is inactive.</strong> WooCommerce 2.3 or greater is required.', 'wc-ratesync' ) );
+		echo '<div class="notice notice-error"><p>';
+		printf(
+			__( '%1$sWC RateSync is inactive.%2$s WooCommerce 2.3 or greater is required.', 'wc-ratesync' ),
+			'<strong>',
+			'</strong>'
+		);
+		echo '</p></div>';
 	}
 
 	/**

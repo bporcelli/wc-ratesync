@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <tr valign="top" class="">
 	<th scope="row" class="titledesc">
-		<label><?php esc_html_e( $value['title'] ); ?></label>
+		<label><?php esc_html_e( $value['title'], 'wc-ratesync' ); ?></label>
 		<?php echo $tooltip_html; ?>
 	</th>
 	<td class="">

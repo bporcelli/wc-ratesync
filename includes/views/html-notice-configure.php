@@ -6,5 +6,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 ?>
 <div class="notice error">
-	<p><?php printf( __( '<strong>RateSync is inactive.</strong> Please <a href="%1$s">activate your license</a> and <a href="%1$s">configure your tax states</a> to dismiss this notice.', 'wc-ratesync' ), esc_url( admin_url( 'admin.php?page=wc-settings&tab=tax#ratesync_options' ) ) ); ?></p>
+    <p>
+    <?php
+        $settings_url = esc_url( admin_url( 'admin.php?page=wc-settings&tab=tax#ratesync_options' ) );
+
+        printf(
+            __( '%1$sRateSync is inactive.%2$s Please %3$sactivate your license%4$s and %5$sconfigure your tax states%6$s to dismiss this notice.', 'wc-ratesync' ),
+            '<strong>',
+            '</strong>',
+            '<a href="'. $settings_url .'">',
+            '</a>',
+            '<a href="'. $settings_url .'">',
+            '</a>'
+        );
+    ?>
+    </p>
 </div>
