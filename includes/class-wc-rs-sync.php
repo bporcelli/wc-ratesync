@@ -93,7 +93,7 @@ class WC_RS_Sync {
 		}
 
 		// Start sync
-		$states = WC_Admin_Settings::get_option( 'ratesync_tax_states', array() );
+		$states = wc_rs_get_tax_states( true );
 
 		update_option( 'ratesync_sync_status', 'in_progress' );
 		update_option( 'ratesync_last_sync', time() );

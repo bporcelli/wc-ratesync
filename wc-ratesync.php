@@ -94,6 +94,7 @@ final class WC_RateSync {
 		define( 'RS_SL_STORE_URL', 'http://wcratesync.com' );
 		define( 'RS_SL_ITEM_ID', 2378 );
 		define( 'RS_FILE', __FILE__ );
+		define( 'RS_VERSION', $this->version );
 	}
 
 	/**
@@ -105,6 +106,7 @@ final class WC_RateSync {
 		if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 			require_once 'includes/vendor/EDD_SL_Plugin_Updater.php';
 		}
+		require_once 'includes/wc-rs-functions.php';
 		require_once 'includes/class-wc-rs-notices.php';
 		require_once 'includes/class-wc-rs-install.php';
 		require_once 'includes/class-wc-rs-sync.php';
