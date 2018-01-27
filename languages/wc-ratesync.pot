@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WC RateSync package.
 msgid ""
 msgstr ""
-"Project-Id-Version: WC RateSync 1.0.3\n"
+"Project-Id-Version: WC RateSync 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/bporcelli/wc-ratesync/issues\n"
 "POT-Creation-Date: 2018-01-26 23:54:34+00:00\n"
 "MIME-Version: 1.0\n"
