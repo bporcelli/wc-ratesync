@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Installer.
  *
- * Handles plugin installation.
+ * Handles plugin installation and updates.
  *
  * @author 	WC RateSync
  * @package WC_RateSync
@@ -16,12 +16,77 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WC_RS_Install {
 
 	/**
+	 * @var Registered update hooks.
+	 */
+	private static $update_hooks = array(
+		'1.1.0' => array(
+			array( __CLASS__, 'update_110_tax_states' )
+		),
+	);
+
+	/**
 	 * Initialize installer.
 	 *
 	 * @since 0.0.1
 	 */
 	public static function init() {
 		add_filter( 'plugin_action_links_' . plugin_basename( RS_FILE ), array( __CLASS__, 'add_settings_link' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_update' ) );
+	}
+
+	/**
+	 * Runs on admin_init and triggers a data update if one is needed.
+	 *
+	 * Right now, the update routines are lightweight and run in the
+	 * foreground. If heavier update routines are introduced in the
+	 * future, they should probably be moved to the background.
+	 *
+	 * @since 1.1.0
+	 */
+	public static function maybe_update() {
+		$db_version = get_option( 'ratesync_db_version', '1.0.0' );
+
+		if ( version_compare( $db_version, RS_VERSION, '>=' ) ) {
+			return;
+		}
+
+		foreach ( self::$update_hooks as $version => $hooks ) {
+			if ( version_compare( $db_version, $version, '<' ) ) {
+				foreach ( $hooks as $hook ) {
+					call_user_func( $hook );
+				}
+			}
+		}
+
+		WC_RS_Notices::add_custom( 'updated', 'success', __(
+			'Thank you for updating to the latest version of RateSync.',
+			'wc-ratesync'
+		) );
+
+		update_option( 'ratesync_db_version', RS_VERSION );
+	}
+
+	/**
+	 * In 1.1.0, the data structure used to store the user's tax states was
+	 * changed. This update hook takes care of migrating existing tax states
+	 * to the new data structure.
+	 *
+	 * @since 1.1.0
+	 */
+	private static function update_110_tax_states() {
+		$states         = WC()->countries->get_states( 'US' );
+		$old_tax_states = get_option( 'ratesync_tax_states', array() );
+		$new_tax_states = array();
+
+		foreach ( $old_tax_states as $state_abbrev ) {
+			$new_tax_states[] = array(
+				'abbrev'           => $state_abbrev,
+				'name'             => $states[ $state_abbrev ],
+				'shipping_taxable' => WC_RS_States::is_shipping_taxable( $state_abbrev ),
+			);
+		}
+
+		wc_rs_set_tax_states( $new_tax_states );
 	}
 
 	/**

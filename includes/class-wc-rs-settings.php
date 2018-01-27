@@ -21,7 +21,7 @@ class WC_RS_Settings {
 	 * @since 0.0.1
 	 */
 	public function __construct() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_stylesheet' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts_and_styles' ) );
 		add_action( 'admin_init', array( $this, 'maybe_deactivate_license' ) );
 		add_action( 'admin_print_styles', array( $this, 'add_config_notice' ) );
 		add_action( 'woocommerce_settings_ratesync_options', array( $this, 'add_settings_anchor' ) );
@@ -39,7 +39,7 @@ class WC_RS_Settings {
 	 * @since 0.0.1
 	 */
 	public function add_config_notice() {
-		$tax_states     = WC_Admin_Settings::get_option( 'ratesync_tax_states', array() );
+		$tax_states     = wc_rs_get_tax_states();
 		$license_active = $this->license_active();
 
 		if ( ! $license_active || empty( $tax_states ) ) {
@@ -50,12 +50,14 @@ class WC_RS_Settings {
 	}
 
 	/**
-	 * Enqueue the admin stylesheet.
+	 * Enqueue admin scripts and styles.
 	 *
 	 * @since 0.0.1
 	 */
-	public function enqueue_stylesheet() {
-		wp_enqueue_style( 'wcrs', RateSync()->plugin_url() . '/assets/css/admin.css' );
+	public function enqueue_scripts_and_styles() {
+		wc_rs_enqueue_style( 'wc-rs-admin', 'admin' );
+
+		wc_rs_register_script( 'wc-rs-tax-states', 'wc-rs-tax-states', array( 'jquery', 'wp-util', 'underscore', 'backbone', 'wc-backbone-modal' ), RS_VERSION );
 	}
 
 	/**
@@ -99,7 +101,7 @@ class WC_RS_Settings {
 			'id'          => 'ratesync_tax_states',
 			'default'     => '',
 			'type'        => 'rs_tax_states',
-			'desc_tip'    => __( 'Select the states where you need to collect tax. If you are unsure about this, consult a tax professional.', 'wc-ratesync' ),
+			'desc_tip'    => __( 'Add all states where you need to collect tax. If you are at all unsure, please consult a tax professional.', 'wc-ratesync' ),
 		);
 
 		$settings[] = array( 'type' => 'sectionend', 'id' => 'ratesync_options' );
@@ -119,6 +121,28 @@ class WC_RS_Settings {
 	}
 
 	/**
+	 * Get a list of states excl. Armed Forces states and U.S. territories.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return array List of U.S. states.
+	 */
+	private function get_states() {
+		$all_states = WC()->countries->get_states( 'US' );
+		$disabled   = array( 'AA', 'AE', 'AP', 'AS', 'GU', 'MP', 'PR', 'UM', 'VI' );
+		$states     = array_diff_key( $all_states, array_fill_keys( $disabled, '' ) );
+
+		foreach ( $states as $abbrev => $name ) {
+			$states[ $abbrev ] = array(
+				'abbrev'           => $abbrev,
+				'name'             => $name,
+				'shipping_taxable' => WC_RS_States::is_shipping_taxable( $abbrev ),
+			);
+		}
+		return $states;
+	}
+
+	/**
 	 * Output tax states field.
 	 *
 	 * @since 0.0.1
@@ -129,35 +153,20 @@ class WC_RS_Settings {
 		$description = WC_Admin_Settings::get_field_description( $value );
 		extract( $description );
 
-		$selections = WC_Admin_Settings::get_option( $value['id'], array() );
+		$tax_states = wc_rs_get_tax_states();
 
-		// Get options; filter out Armed Forces states and U.S. territories
-		$states   = WC()->countries->get_states( 'US' );
-		$disabled = array( 'AA', 'AE', 'AP', 'AS', 'GU', 'MP', 'PR', 'UM', 'VI' );
+		wp_enqueue_script( 'wc-rs-tax-states' );
 
-		foreach ( $disabled as $abbrev ) {
-			if ( isset( $states[ $abbrev ] ) ) {
-				unset( $states[ $abbrev ] );
-			}
-		}
+		wp_localize_script(  'wc-rs-tax-states', 'taxStatesLocalizeScript', array(
+			'tax_states' => $tax_states,
+			'all_states' => $this->get_states(),
+			'strings'    => array(
+				'yes' => __( 'Yes', 'wc-ratesync' ),
+				'no'  => __( 'No', 'wc-ratesync' )
+			)
+		) );
 
-		?><tr valign="top">
-			<th scope="row" class="titledesc">
-				<label for="<?php echo esc_attr( $value['id'] ); ?>"><?php echo esc_html( $value['title'] ); ?></label>
-				<?php echo $tooltip_html; ?>
-			</th>
-			<td class="forminp">
-				<select multiple="multiple" name="<?php echo esc_attr( $value['id'] ); ?>[]" style="width:350px" data-placeholder="<?php esc_attr_e( 'Choose states&hellip;', 'woocommerce' ); ?>" aria-label="<?php esc_attr_e( 'State', 'woocommerce' ) ?>" class="wc-enhanced-select">
-					<?php
-						if ( ! empty( $states ) ) {
-							foreach ( $states as $key => $val ) {
-								echo '<option value="' . esc_attr( $key ) . '" ' . selected( in_array( $key, $selections ), true, false ) . '>' . $val . '</option>';
-							}
-						}
-					?>
-				</select> <?php echo ( $description ) ? $description : ''; ?> <br /><a class="select_all button" href="#"><?php _e( 'Select all', 'woocommerce' ); ?></a> <a class="select_none button" href="#"><?php _e( 'Select none', 'woocommerce' ); ?></a>
-			</td>
-		</tr><?php
+		include RateSync()->plugin_path() . '/includes/views/html-tax-states-table.php';
 	}
 
 	/**
@@ -257,12 +266,12 @@ class WC_RS_Settings {
 	 * @since 0.0.1
 	 */
 	protected function save_tax_states() {
-		if ( ! isset( $_POST['ratesync_tax_states'] ) ) {
+		if ( ! isset( $_POST[ 'ratesync_tax_states' ] ) ) {
 			$states = array();	
 		} else {
-			$states = $_POST['ratesync_tax_states'];
+			$states = $_POST[ 'ratesync_tax_states' ];
 		}
-		update_option( 'ratesync_tax_states', $states );
+		wc_rs_set_tax_states( $states );
 	}
 
 	/**
@@ -306,18 +315,20 @@ class WC_RS_Settings {
 	}
 
 	/**
-	 * Starts a rate sync if the last sync was aborted OR the selected tax
-	 * states have changed.
+	 * Runs when the user saves their WooCommerce tax options.
+	 *
+	 * Triggers a rate sync so long as the user has entered a valid
+	 * license key.
 	 *
 	 * @since 0.0.1
 	 */
 	protected function sync_rates() {
 		global $wpdb;
 
-		$tax_states = WC_Admin_Settings::get_option( 'ratesync_tax_states', array() );
+		$tax_states = wc_rs_get_tax_states( true );
 		$license    = WC_Admin_Settings::get_option( 'ratesync_license_key' );
 
-		// Delete rates for removed states
+		// Delete orphaned tax rates
 		$wpdb->query( $wpdb->prepare( "
 			DELETE FROM {$wpdb->prefix}woocommerce_tax_rates
 			WHERE tax_rate_state NOT IN (%s);

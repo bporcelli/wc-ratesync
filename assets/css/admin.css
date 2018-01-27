@@ -12,3 +12,8 @@
 	line-height: 36px;
 	text-decoration: none;
 }
+
+.wp-core-ui .wc-rs-modal-add-tax-state .button.select_all,
+.wp-core-ui .wc-rs-modal-add-tax-state .button.select_none {
+    margin-top: 5px;
+}

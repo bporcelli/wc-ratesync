@@ -44,7 +44,7 @@ class WC_RS_Notices {
 			if ( array_key_exists( $notice_id, self::$notices ) ) {
 				call_user_func( array( __CLASS__, self::$notices[ $notice_id ] ) );
 			} else {
-				include RateSync()->plugin_path() . '/views/admin/html-notice-custom.php';
+				include RateSync()->plugin_path() . '/includes/views/html-notice-custom.php';
 			}
 		}
 	}
@@ -127,7 +127,7 @@ class WC_RS_Notices {
 		$tab    = isset( $_GET['tab'] ) ? $_GET['tab'] : '';
 
 		if ( 'woocommerce_page_wc-settings' !== $screen->id  || 'tax' !== $tab ) {
-			include RateSync()->plugin_path() . '/views/admin/html-notice-configure.php';
+			include RateSync()->plugin_path() . '/includes/views/html-notice-configure.php';
 		}
 	}
 
