@@ -48,7 +48,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<td width="1%" class="wc-rs-tax-state-actions">
 			<a href="#" class="wc-rs-tax-state-delete">
 				<span class="screen-reader-text"><?php esc_html_e( 'Delete', 'wc-ratesync' ); ?></span>
-				<i class="fa fa-times"></i>
+                <span class="dashicons dashicons-no-alt"></span>
 			</a>
 		</td>
 		<td class="wc-shipping-zone-method-title">
