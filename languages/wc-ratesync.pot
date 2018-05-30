@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the WC RateSync package.
 msgid ""
 msgstr ""
-"Project-Id-Version: WC RateSync 1.0.3\n"
+"Project-Id-Version: WC RateSync 1.1.1\n"
 "Report-Msgid-Bugs-To: https://github.com/bporcelli/wc-ratesync/issues\n"
-"POT-Creation-Date: 2018-01-26 23:54:34+00:00\n"
+"POT-Creation-Date: 2018-05-30 13:29:40+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -160,7 +160,7 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: wc-ratesync.php:158
+#: wc-ratesync.php:164
 msgid "%1$sWC RateSync is inactive.%2$s WooCommerce 2.3 or greater is required."
 msgstr ""
 
