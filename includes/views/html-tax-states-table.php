@@ -1,14 +1,21 @@
 <?php
+/**
+ * Tax states table template.
+ *
+ * @global array $value
+ * @global array $description
+ *
+ * @package WC_RateSync
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
-
 ?>
 <tr valign="top" class="">
 	<th scope="row" class="titledesc">
-		<label><?php esc_html_e( $value['title'], 'wc-ratesync' ); ?></label>
-		<?php echo $tooltip_html; ?>
+		<label><?php echo $value['title']; ?></label>
+		<?php echo $description['tooltip_html']; ?>
 	</th>
 	<td class="">
 		<table class="wc-shipping-zone-methods wc-rs-tax-states widefat">
@@ -26,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<tfoot>
 				<tr>
 					<td colspan="4">
-						<button type="submit" class="button wc-rs-add-tax-state" value="<?php esc_attr_e( 'Add tax states', 'wc-ratesync' ); ?>"><?php esc_html_e( 'Add tax states', 'wc-ratesync' ); ?></button>
+						<button class="button wc-rs-add-tax-state"><?php esc_html_e( 'Add tax states', 'wc-ratesync' ); ?></button>
 					</td>
 				</tr>
 			</tfoot>
@@ -38,7 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <script type="text/html" id="tmpl-wc-rs-tax-state-row-blank">
 	<tr>
 		<td class="wc-shipping-zone-method-blank-state" colspan="4">
-			<p><?php esc_html_e( 'You can collect tax in any number of states. Click the button below to get started.', 'wc-ratesync' ); ?></p>
+			<p>{{ data.strings.blank_slate_text }}</p>
 		</td>
 	</tr>
 </script>
@@ -47,7 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<tr data-abbrev="{{ data.abbrev }}" data-enabled="{{ data.shipping_taxable }}">
 		<td width="1%" class="wc-rs-tax-state-actions">
 			<a href="#" class="wc-rs-tax-state-delete">
-				<span class="screen-reader-text"><?php esc_html_e( 'Delete', 'wc-ratesync' ); ?></span>
+				<span class="screen-reader-text">{{ data.strings.delete }}</span>
                 <span class="dashicons dashicons-no-alt"></span>
 			</a>
 		</td>
@@ -66,29 +73,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</tr>
 </script>
 
-<script type="text/template" id="tmpl-wc-rs-modal-add-tax-state">
+<script type="text/html" id="tmpl-wc-rs-modal-add-tax-state">
 	<div class="wc-backbone-modal">
 		<div class="wc-backbone-modal-content wc-rs-modal-add-tax-state">
 			<section class="wc-backbone-modal-main" role="main">
 				<header class="wc-backbone-modal-header">
-					<h1><?php esc_html_e( 'Add tax states', 'wc-ratesync' ); ?></h1>
+					<h1>{{ data.strings.add_tax_states }}</h1>
 					<button class="modal-close modal-close-link dashicons dashicons-no-alt">
-						<span class="screen-reader-text">Close modal panel</span>
+						<span class="screen-reader-text">{{ data.strings.close_modal }}</span>
 					</button>
 				</header>
 				<article>
 					<form action="" method="post">
-						<select multiple="multiple" name="wc_rs_tax_states[]" style="width:350px" data-placeholder="<?php esc_attr_e( 'Choose states&hellip;', 'wc-ratesync' ); ?>" aria-label="<?php esc_attr_e( 'State', 'wc-ratesync' ) ?>" class="wc-enhanced-select">
+						<select multiple="multiple" name="wc_rs_tax_states[]" style="width:350px" data-placeholder="{{{ data.strings.choose_states }}}" aria-label="{{ data.strings.state }}" class="wc-enhanced-select">
 							<# for ( var state of data.states ) { #>
 								<option value="{{{ state[ 'abbrev' ] }}}">{{{ state[ 'name' ] }}}</option>
 							<# } #>
 						</select> <br>
-						<a class="select_all button" href="#"><?php _e( 'Select all', 'wc-ratesync' ); ?></a> <a class="select_none button" href="#"><?php _e( 'Select none', 'wc-ratesync' ); ?></a>
+						<a class="select_all button" href="#">{{ data.strings.select_all }}</a> <a class="select_none button" href="#">{{ data.strings.select_none }}</a>
 					</form>
 				</article>
 				<footer>
 					<div class="inner">
-						<button id="btn-ok" class="button button-primary button-large"><?php esc_html_e( 'Add', 'wc-ratesync' ); ?></button>
+						<button id="btn-ok" class="button button-primary button-large">{{ data.strings.add }}</button>
 					</div>
 				</footer>
 			</section>
