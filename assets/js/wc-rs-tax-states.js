@@ -1,8 +1,7 @@
-/* global jQuery, taxStatesLocalizeScript, wp, ajaxurl */
-( function( $, data, wp, ajaxurl ) {
+/* global jQuery, taxStatesLocalizeScript, wp */
+( function( $, data, wp ) {
     $( function() {
-        var $table          = $( '.wc-rs-tax-states' ),
-            $tbody          = $( '.wc-rs-tax-state-rows' ),
+        var $tbody          = $( '.wc-rs-tax-state-rows' ),
             $row_template   = wp.template( 'wc-rs-tax-state-row' ),
             $blank_template = wp.template( 'wc-rs-tax-state-row-blank' ),
 
@@ -60,23 +59,23 @@
                                 rowData.shipping_tax_icon = '<span class="woocommerce-input-toggle woocommerce-input-toggle--disabled">' + data.strings.no + '</span>';
                             }
 
-                            view.$el.append( view.rowTemplate( rowData ) );
+                            // Add strings for internationalization
+                            rowData.strings = data.strings;
 
-                            var $tr = view.$el.find( 'tr[data-abbrev="' + abbrev + '"]');
+                            view.$el.append( view.rowTemplate( rowData ) );
                         } );
 
                         // Make the rows function
                         this.$el.find( '.wc-rs-tax-state-delete' ).on( 'click', { view: this }, this.onDeleteRow );
                         this.$el.find( '.wc-rs-shipping-tax-enabled a').on( 'click', { view: this }, this.onToggleEnabled );
                     } else {
-                        view.$el.append( $blank_template );
+                        view.$el.append( $blank_template( { strings: data.strings } ) );
                     }
                 },
                 onDeleteRow: function( event ) {
                     var view         = event.data.view,
                         model        = view.model,
                         states       = _.indexBy( model.get( 'states' ), 'abbrev' ),
-                        changes      = {},
                         state_abbrev = $( this ).closest('tr').data( 'abbrev' );
 
                     event.preventDefault();
@@ -91,8 +90,7 @@
                         model        = view.model,
                         states       = _.indexBy( model.get( 'states' ), 'abbrev' ),
                         state_abbrev = $target.closest( 'tr' ).data( 'abbrev' ),
-                        enabled      = $target.closest( 'tr' ).data( 'enabled' ) === 'yes' ? 'no' : 'yes',
-                        changes      = {};
+                        enabled      = $target.closest( 'tr' ).data( 'enabled' ) === 'yes' ? 'no' : 'yes';
 
                     event.preventDefault();
                     states[ state_abbrev ].shipping_taxable = enabled;
@@ -114,7 +112,8 @@
                     $( this ).WCBackboneModal( {
                         template : 'wc-rs-modal-add-tax-state',
                         variable : {
-                            states : available
+                            states  : available,
+                            strings : data.strings
                         }
                     } );
 
@@ -151,4 +150,4 @@
 
         taxStatesView.render();
     });
-})( jQuery, taxStatesLocalizeScript, wp, ajaxurl );
+})( jQuery, taxStatesLocalizeScript, wp );

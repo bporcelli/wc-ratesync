@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the WC RateSync package.
 msgid ""
 msgstr ""
-"Project-Id-Version: WC RateSync 1.1.1\n"
+"Project-Id-Version: WC RateSync 1.1.2\n"
 "Report-Msgid-Bugs-To: https://github.com/bporcelli/wc-ratesync/issues\n"
-"POT-Creation-Date: 2018-05-30 13:29:40+00:00\n"
+"POT-Creation-Date: 2018-06-22 15:48:30+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,73 +28,113 @@ msgstr ""
 msgid "Thank you for updating to the latest version of RateSync."
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:81
+#: includes/class-wc-rs-settings.php:89
 msgid "RateSync options"
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:84
+#: includes/class-wc-rs-settings.php:96
 msgid "License key"
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:89
+#: includes/class-wc-rs-settings.php:101
 msgid "Enter your RateSync license key. This was included in your download email."
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:93
+#: includes/class-wc-rs-settings.php:105
 msgid "Last sync"
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:96
+#: includes/class-wc-rs-settings.php:108
 msgid ""
 "The time and status of the last rate sync. Rates will be synced once daily "
 "and when you save your tax settings."
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:100
+#: includes/class-wc-rs-settings.php:112
 msgid "Tax states"
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:104
+#: includes/class-wc-rs-settings.php:116
 msgid ""
 "Add all states where you need to collect tax. If you are at all unsure, "
 "please consult a tax professional."
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:164
+#: includes/class-wc-rs-settings.php:175
 msgid "Yes"
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:165
+#: includes/class-wc-rs-settings.php:176
 msgid "No"
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:197
+#: includes/class-wc-rs-settings.php:177
+msgid ""
+"You can collect tax in any number of states. Click the button below to get "
+"started."
+msgstr ""
+
+#: includes/class-wc-rs-settings.php:178
+msgid "Delete"
+msgstr ""
+
+#: includes/class-wc-rs-settings.php:179
+#: includes/views/html-tax-states-table.php:36
+msgid "Add tax states"
+msgstr ""
+
+#: includes/class-wc-rs-settings.php:180
+msgid "Close modal panel"
+msgstr ""
+
+#: includes/class-wc-rs-settings.php:181
+msgid "Choose states&hellip;"
+msgstr ""
+
+#: includes/class-wc-rs-settings.php:182
+#: includes/views/html-tax-states-table.php:26
+msgid "State"
+msgstr ""
+
+#: includes/class-wc-rs-settings.php:183
+msgid "Select all"
+msgstr ""
+
+#: includes/class-wc-rs-settings.php:184
+msgid "Select none"
+msgstr ""
+
+#: includes/class-wc-rs-settings.php:185
+msgid "Add"
+msgstr ""
+
+#: includes/class-wc-rs-settings.php:215
 msgid "Not synced yet."
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:247
+#: includes/class-wc-rs-settings.php:268
 msgid "Deactivate"
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:310
+#: includes/class-wc-rs-settings.php:336
 msgid "RateSync license activated successfully."
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:312
+#: includes/class-wc-rs-settings.php:338
 msgid ""
 "Failed to activate RateSync license. Please check your license key and try "
 "again"
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:342
+#: includes/class-wc-rs-settings.php:368
 msgid "Tax rate sync started."
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:378
+#: includes/class-wc-rs-settings.php:408
 msgid "RateSync license deactivated successfully."
 msgstr ""
 
-#: includes/class-wc-rs-settings.php:380
+#: includes/class-wc-rs-settings.php:410
 msgid "Failed to deactivate RateSync license. Please wait a minute and try again."
 msgstr ""
 
@@ -106,7 +146,7 @@ msgstr ""
 msgid "Couldn't retrieve table for state %s (response code: %d)."
 msgstr ""
 
-#: includes/class-wc-rs-sync.php:257
+#: includes/class-wc-rs-sync.php:258
 msgid "Tax rate sync failed: %s"
 msgstr ""
 
@@ -120,44 +160,8 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-#: includes/views/html-tax-states-table.php:19
-#: includes/views/html-tax-states-table.php:81
-msgid "State"
-msgstr ""
-
-#: includes/views/html-tax-states-table.php:22
-msgid "Tax Shipping"
-msgstr ""
-
 #: includes/views/html-tax-states-table.php:29
-#: includes/views/html-tax-states-table.php:74
-msgid "Add tax states"
-msgstr ""
-
-#: includes/views/html-tax-states-table.php:41
-msgid ""
-"You can collect tax in any number of states. Click the button below to get "
-"started."
-msgstr ""
-
-#: includes/views/html-tax-states-table.php:50
-msgid "Delete"
-msgstr ""
-
-#: includes/views/html-tax-states-table.php:81
-msgid "Choose states&hellip;"
-msgstr ""
-
-#: includes/views/html-tax-states-table.php:86
-msgid "Select all"
-msgstr ""
-
-#: includes/views/html-tax-states-table.php:86
-msgid "Select none"
-msgstr ""
-
-#: includes/views/html-tax-states-table.php:91
-msgid "Add"
+msgid "Tax Shipping"
 msgstr ""
 
 #: wc-ratesync.php:164

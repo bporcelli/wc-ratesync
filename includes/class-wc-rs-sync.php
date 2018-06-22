@@ -172,6 +172,7 @@ class WC_RS_Sync {
 
 			$wpdb->delete( $wc_tax_rates, array(
 				'tax_rate_state' => $state[ 'abbrev' ],
+				'tax_rate_class' => '',
 			) );
 
 			$this->importer->import( $table_path );
