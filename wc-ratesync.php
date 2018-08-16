@@ -37,30 +37,27 @@ if ( ! is_plugin_active( 'woocommerce/woocommerce.php' ) || version_compare( get
  *
  * @author 	WC RateSync
  * @package WC_RateSync
- * @since 	0.0.1
  */
 final class WC_RateSync {
 
 	/**
-	 * @var Current plugin version
+	 * @var string Current plugin version
 	 */
 	public $version = '1.1.2';
 
 	/**
-	 * @var Is the plugin in debug mode?
+	 * @var bool Is the plugin in debug mode?
 	 */
 	private $debug = false;
 
 	/**
-	 * @var RateSync instance
+	 * @var WC_RateSync RateSync instance
 	 */
 	protected static $_instance = null;
 
 	/**
 	 * Singleton instance accessor.
 	 *
-	 * @since 0.0.1
-	 * 
 	 * @return WC_RateSync
 	 */
 	public static function instance() {
@@ -72,8 +69,6 @@ final class WC_RateSync {
 
 	/**
 	 * Constructor. Bootstraps the plugin.
-	 *
-	 * @since 0.0.1
 	 */
 	public function __construct() {
 		$this->load_textdomain();
@@ -85,8 +80,6 @@ final class WC_RateSync {
 
 	/**
 	 * Load text domain.
-	 *
-	 * @since 0.0.1
 	 */
 	private function load_textdomain() {
 		load_plugin_textdomain( 'wc-ratesync', false, basename( dirname( __FILE__ ) ) . '/languages' );
@@ -94,8 +87,6 @@ final class WC_RateSync {
 
 	/**
 	 * Define plugin constants.
-	 *
-	 * @since 0.0.1
 	 */
 	private function define_constants() {
 		define( 'RS_SL_STORE_URL', 'http://wcratesync.com' );
@@ -107,8 +98,6 @@ final class WC_RateSync {
 
 	/**
 	 * Include plugin files.
-	 *
-	 * @since 0.0.1
 	 */
 	private function includes() {
 		if ( ! class_exists( 'EDD_SL_Plugin_Updater' ) ) {
@@ -124,18 +113,15 @@ final class WC_RateSync {
 
 	/**
 	 * Register action hooks.
-	 *
-	 * @since 0.0.1
 	 */
 	private function hooks() {
 		register_activation_hook( __FILE__, array( 'WC_RS_Install', 'activate' ) );
 		register_deactivation_hook( __FILE__, array( 'WC_RS_Install', 'deactivate' ) );
+		add_filter( 'woocommerce_get_tax_location', array( $this, 'handle_zip4_codes' ) );
 	}
 
 	/**
 	 * Check for plugin updates.
-	 *
-	 * @since 0.0.1
 	 */
 	private function check_updates() {
 		// Retrieve license key
@@ -155,8 +141,6 @@ final class WC_RateSync {
 	/**
 	 * Display a notice if WooCommerce is inactive or an unsupported version
 	 * is installed.
-	 *
-	 * @since 0.0.1
 	 */
 	public static function woocommerce_notice() {
 		echo '<div class="notice notice-error"><p>';
@@ -171,8 +155,6 @@ final class WC_RateSync {
 	/**
 	 * Return plugin dir path without a trailing slash.
 	 *
-	 * @since 0.0.1
-	 *
 	 * @return string
 	 */
 	public function plugin_path() {
@@ -182,20 +164,33 @@ final class WC_RateSync {
 	/**
 	 * Return plugin dir url without a trailing slash.
 	 *
-	 * @since 0.0.1
-	 *
 	 * @return string
 	 */
 	public function plugin_url() {
 		return untrailingslashit( plugin_dir_url( __FILE__ ) );
 	}
 
+	/**
+     * Filters the WC tax location so that only the first 5 digits of the
+     * ZIP code are used to match tax rates.
+     *
+     * @param array $location
+     *
+     * @return array
+     */
+	public function handle_zip4_codes( $location ) {
+	    list( $country, $state, $postcode, $city ) = $location;
+
+	    if ( 'US' === $country ) {
+	        $location[2] = substr( $postcode, 0, 5 );
+        }
+        return $location;
+    }
+
 }
 
 /**
  * Return the plugin instance.
- *
- * @since 0.0.1
  *
  * @return WC_RateSync
  */
