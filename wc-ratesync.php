@@ -3,7 +3,7 @@
 /**
  * Plugin Name:          WC RateSync
  * Description:          The easiest way to keep your WooCommerce tax tables up-to-date.
- * Version:              1.1.3
+ * Version:              1.1.4
  * Author:               WC RateSync
  * Author URI:           http://wcratesync.com
  * Requires at least:    4.4.0
@@ -43,7 +43,7 @@ final class WC_RateSync {
 	/**
 	 * @var string Current plugin version
 	 */
-	public $version = '1.1.3';
+	public $version = '1.1.4';
 
 	/**
 	 * @var bool Is the plugin in debug mode?
