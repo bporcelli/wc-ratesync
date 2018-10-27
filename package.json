@@ -22,8 +22,8 @@
   },
   "homepage": "https://github.com/bporcelli/wc-ratesync#readme",
   "devDependencies": {
-    "grunt": "^1.0.1",
+    "grunt": "^1.0.3",
     "grunt-contrib-uglify": "^3.3.0",
-    "grunt-wp-i18n": "^1.0.1"
+    "grunt-wp-i18n": "^1.0.2"
   }
 }
