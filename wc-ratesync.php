@@ -7,9 +7,9 @@
  * Author:               WC RateSync
  * Author URI:           http://wcratesync.com
  * Requires at least:    4.4.0
- * Tested up to:         4.9.5
+ * Tested up to:         4.9.0
  * WC requires at least: 2.3.0
- * WC tested up to:      3.4.0
+ * WC tested up to:      3.5.0
  * Text Domain:          wc-ratesync
  * Domain Path:          /languages
  *
